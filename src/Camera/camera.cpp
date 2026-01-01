@@ -23,7 +23,7 @@ void Camera::init() {
 		{ (float)window.getSize().x,
 		(float)window.getSize().y }
 	);
-	view.zoom(5.f);
+	view.zoom(cameraZoom);
 }
 
 void Camera::setView(sf::View view) {
@@ -34,4 +34,20 @@ void Camera::setView(sf::View view) {
 
 sf::View& Camera::getView() {
 	return view;
+}
+
+
+void Camera::setZoom(Input& input, const std::optional<sf::Event>* event,
+	const sf::Event::MouseWheelScrolled* wheel,
+	sf::Mouse::Wheel key){
+	if (input.isWheelPressedEventUp(event,wheel,key)) {
+
+		if (cameraZoom <= 0.5f) return;
+		cameraZoom -= 0.25f;
+
+	}
+	else if (input.isWheelPressedEventDown(event, wheel, key)) {
+		if (cameraZoom >= 5.f) return;
+		cameraZoom += 0.25f;
+	}
 }

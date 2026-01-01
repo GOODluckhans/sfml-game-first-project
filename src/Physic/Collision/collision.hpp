@@ -97,6 +97,34 @@ public:
 		//no solid
 
 	}
+	template<typename OBJ1>
+	void inverseCollision(OBJ1& obj1,const sf::FloatRect& objBounds, const sf::FloatRect& objBounds2) {
+		float overlapLeft = (objBounds.position.x + objBounds.size.x) - objBounds.position.x;
+		float overlapRight = (objBounds2.position.x + objBounds2.size.x) - objBounds.position.x;
+		float overlapTop = (objBounds.position.y + objBounds.size.y) - objBounds2.position.y;
+		float overlapBottom = (objBounds2.position.y + objBounds2.size.y) - objBounds.position.y;
+
+		// Find smallest overlap
+		float minX = std::min(overlapLeft, overlapRight);
+		float minY = std::min(overlapTop, overlapBottom);
+
+		if (minX < minY) {
+			// Resolve X only
+
+			if (overlapLeft < overlapRight)
+				obj1.setPosition({ objBounds2.position.x + objBounds.size.x, objBounds.position.y });
+			else
+				obj1.setPosition({ (objBounds2.position.x + objBounds2.size.x) - (objBounds.size.x + 10.f), objBounds.position.y });
+
+		}
+		else {
+			// Resolve Y only
+			if (overlapTop < overlapBottom)
+				obj1.setPosition({ objBounds.position.x, objBounds2.position.y + objBounds.size.y });
+			else
+				obj1.setPosition({ objBounds.position.x, (objBounds2.position.y + objBounds2.size.y) - (objBounds.size.y + 10.f) });
+		}
+	}
 
 
 };

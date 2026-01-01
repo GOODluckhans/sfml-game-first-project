@@ -2,16 +2,25 @@
 
 ObjSystem::ObjSystem(sf::RenderWindow& window) :
 	mainMap(window), player(window), animation(player.spriteAnimChar, player.playerMove),
-	tree(window)
+	tree(window),dayNightCycle(1,window)
 {
 }
 
 void ObjSystem::update(float dt, Input& input, Movement& movement) {
 	player.update();
-	//std::cout << "PLAYER : " << layerInt.PLAYER << '\n' <<
-	//	"OBJECT : " << layerInt.OBJECTSPAWN << '\n';;
 	player.playerHB.movementPlayerHB(player.playerHB.getHitbox(), dt, input, movement, player.playerHB.direction, player.playerMove);
 	animation.animationRun(player.playerHB.direction, player.getSprite());
+
+	//cycle 
+		//day night cycle update
+	dayNightCycle.updateTime();
+	dayNightCycle.update(player.playerHB.getHitbox());
+
+	//weather
+	weather.WeatherActive();
+	//update Weather
+	weather.update(player.playerHB.getHitbox());
+	
 }
 
 void ObjSystem::renderEntity(sf::RenderWindow& window, Render& render) {
@@ -42,6 +51,18 @@ void ObjSystem::renderEntity(sf::RenderWindow& window, Render& render) {
 	for (auto* spritePtr : sortedSprites) {
 		render.submit(*spritePtr, *spritePtr, spritePtr->getLocalBounds(), layerInt.OBJECTSPAWN);
 	}
+
+	//weather 
+	for (auto& rain : weather.rainFalls) {
+		render.submit(rain,rain, rain.getGlobalBounds(), layerInt.WEATHER);
+
+	}
+	for (auto& waterSplashes : weather.RainSplashes) {
+		render.submit(waterSplashes, waterSplashes, waterSplashes.getGlobalBounds(), layerInt.WEATHER);
+
+	}
+	//cycle 
+	render.submit(dayNightCycle.getRectangle(), dayNightCycle.getRectangle(),dayNightCycle.getRectangle().getGlobalBounds(), layerInt.CYCLE);
 
 }
 
@@ -92,26 +113,11 @@ void ObjSystem::handleCollision(Collision& collision) {
 			}
 
 		};
-
-
-	for (auto& [key, world] : mainMap.worlds) {
-		RemovingObjct(true, tree.trees, world, key);
-		RemovingObjct(true, tree.treeHitboxes, world, key);
-	}
-
 	auto solidColliding = [&](auto& obj1, auto& obj2) {
 		collision.ifColliding(obj1, obj2, true);
 
 		};
 
-	for (auto& [key, treeHB] : tree.treeHitboxes) {
-		if (collision.isColliding(player.playerHB.getHitbox(), *treeHB)) {
-			solidColliding(player.playerHB.getHitbox(), *treeHB);
-			std::cout << key << '\n';
-		}
-	}
-
-	
 	auto depth = [&](auto& main, auto& obj,
 		int& mainLayer, int& objLayer
 		)
@@ -138,6 +144,30 @@ void ObjSystem::handleCollision(Collision& collision) {
 			}
 		};
 
+	auto inverseColliding = [&](auto& obj1, auto& obj2) {
+		if (collision.isColliding(obj1, obj2)) return;
+		collision.inverseCollision(obj1, obj1.getGlobalBounds(), obj2);
+
+		};
+
+	sf::FloatRect groundBound = mainMap.getBounds(mainMap.vertexMap);
+	inverseColliding(player.playerHB.getHitbox(),groundBound);
+
+	for (auto& [key, world] : mainMap.worlds) {
+		RemovingObjct(true, tree.trees, world, key);
+		RemovingObjct(true, tree.treeHitboxes, world, key);
+	}
+
+
+	for (auto& [key, treeHB] : tree.treeHitboxes) {
+		if (collision.isColliding(player.playerHB.getHitbox(), *treeHB)) {
+			solidColliding(player.playerHB.getHitbox(), *treeHB);
+			std::cout << key << '\n';
+		}
+	}
+
+
+	layerInt.CYCLE = NormalLayer.CYCLE;
 	layerInt.BACKGROUND = NormalLayer.PLAYER;
 	layerInt.PLAYER = NormalLayer.PLAYER;
 	layerInt.OBJECTSPAWN = NormalLayer.OBJECTSPAWN;
@@ -175,6 +205,8 @@ void ObjSystem::handleCollision(Collision& collision) {
 			}
 
 	}
+
+
 
 }
 

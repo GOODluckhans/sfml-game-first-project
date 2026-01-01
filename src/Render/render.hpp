@@ -5,10 +5,12 @@ enum class RenderLayer {
     BACKGROUND = 0,
     WORLD = 1,
     ENTITY = 2,
-    PLAYER = 3,
-    OBJECTSPAWN = 4,
-    HITBOX = 5,
-    UI = 6
+    WEATHER = 3,
+    PLAYER = 4,
+    OBJECTSPAWN = 5,
+    HITBOX = 6,
+    CYCLE = 7,
+    UI = 8
 };
 
 struct RenderItem {
@@ -53,7 +55,7 @@ public:
             //    continue;
 
             // Set view for UI
-            if (item.layer == 6)
+            if (item.layer == (int)RenderLayer::UI)
                 window.setView(window.getDefaultView());
             else
                 window.setView(camera.getView());

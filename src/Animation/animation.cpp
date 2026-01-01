@@ -68,6 +68,8 @@ void Animation::animationRun(const std::string& direction, sf::Sprite& sprite, i
 	
 }
 
+
+
 void Animation::animationStop(sf::Sprite& sprite, const std::string& lastDirMove, int width , int height ,
 	int xDown , int xTop , int xLeft , int xRight ,
 	int yDown , int yTop, int yLeft , int yRight)  {
@@ -83,4 +85,9 @@ void Animation::animationStop(sf::Sprite& sprite, const std::string& lastDirMove
 
 	sprite.setTextureRect(SpriteRect);
 
+}
+
+
+void Animation::ParticleEffect() {
+	
 }
